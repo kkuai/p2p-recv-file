@@ -18,7 +18,7 @@
 #define KKP2P_ERROR_INVALID_PEER_ID        -110
 #define KKP2P_ERROR_INVALID_PEER_KEY       -111
 #define KKP2P_ERROR_LANMODE_MUSTUSE_P2P    -112
-#define KKP2P_ERROR_CHANNEL_IS_NULL        -113
+#define KKP2P_ERROR_BIND_IP                -113
 
 typedef struct kkp2p_engine_s kkp2p_engine_t;
 typedef struct kkp2p_channel_s kkp2p_channel_t;
@@ -48,7 +48,8 @@ typedef struct kkp2p_connect_ctx_s {
     char peer_id[33];    // peer_id with a maximum length of 32 and ended with '\0'
     int connect_mode;    // 0:auto; 1:only p2p; 2:only relay
     int encrypt_data;    // encrypt data or not. 0:not encrypt data; 1:encrypt
-    int timeout;        // milliseconds, timeout for channel creation
+    int timeout;         // milliseconds, timeout for channel creation
+    int connect_desc;    // user defined parameters, transmitted to the dest peer
     kkp2p_connect_cb func;    // connect async or not. NULL means synchronous, otherwise asynchronous
     void* func_param;         // the param for func when func is not NULL
 } kkp2p_connect_ctx_t;
@@ -57,7 +58,8 @@ typedef struct kkp2p_channel_s {
     char peer_id[33];         // peer_id with a maximum length of 32 and ended with '\0'
     int  transmit_mode;       // 1:p2p; 2:relay
     int  encrypt_data;        // encrypt data or not. 0:not encrypt data; 1:encrypt
-    uint32_t channel_id;         // the channel id
+    uint32_t channel_id;      // the channel id
+    int connect_desc;         // user defined parameters
     int fd;                   // the channel's fd for app read and write data 
 } kkp2p_channel_t;
 
@@ -100,6 +102,13 @@ int kkp2p_accept(kkp2p_engine_t* engine, int timeout, kkp2p_channel_t* channel);
 // return value: <0 is error, >=0 is success
 int kkp2p_connect(kkp2p_engine_t* engine, kkp2p_connect_ctx_t* ctx, kkp2p_channel_t* channel);
 int kkp2p_lan_search(kkp2p_engine_t* engine, kkp2p_connect_ctx_t* ctx, kkp2p_channel_t* channel);
+
+// start a proxy to communicate with peer
+// The data sent to the IP and port will be forwarded to ctx.peer_id
+// ctx.func and ctx.func_param must be NULL
+// return value:<0 is error, >=0 is success, proxyId is an output parameter
+int kkp2p_start_proxy(kkp2p_engine_t* engine, char* ip, uint16_t port, kkp2p_connect_ctx_t* ctx, uint32_t* proxyId);
+void kkp2p_stop_proxy(kkp2p_engine_t* engine, uint32_t proxyId);
 
 // return value: <0 is error, 0 is timeout, >0 is success read byte count
 int kkp2p_read(int fd, char* buff, int len, int timeout);

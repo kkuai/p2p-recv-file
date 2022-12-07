@@ -3,6 +3,17 @@
 
 #include <stdint.h>
 
+#ifdef KKP2P_WINDLL   
+    #ifdef KKP2P_EXPORTS
+        #define KKP2P_API __declspec(dllexport)
+    #else
+        #define KKP2P_API __declspec(dllimport)
+    #endif
+#else
+    #define KKP2P_API
+#endif
+    
+
 // error code
 #define KKP2P_SUCCESS                             0
 #define KKP2P_ERROR                              -1
@@ -36,6 +47,9 @@ typedef struct kkp2p_engine_conf_s {
     // 0 means not use LAN serach mode
     // used to connect or listen
     uint16_t  lan_search_port;
+
+    // 1:disable upnp,0 enable upnp
+    char disable_upnp;
 
     // when log_path is null, log path is program running path
     char* log_path;
@@ -72,53 +86,53 @@ typedef struct kkp2p_channel_s {
 // Return:
 //   valid engine pointer when success and NULL when error
 
-kkp2p_engine_t*  kkp2p_engine_init(const kkp2p_engine_conf_t* conf, int timeout);
+KKP2P_API kkp2p_engine_t*  kkp2p_engine_init(const kkp2p_engine_conf_t* conf, int timeout);
 
-void kkp2p_engine_destroy(kkp2p_engine_t* engine);
+KKP2P_API void kkp2p_engine_destroy(kkp2p_engine_t* engine);
 
 // 0:no log, 1:error log, 2:normal log, 3:info log, 4:debug log
 // default log level is 2, log name is kkp2p_engine.log
-void kkp2p_switch_log_level(kkp2p_engine_t* engine, int level);
+KKP2P_API void kkp2p_switch_log_level(kkp2p_engine_t* engine, int level);
 
 // Parameter: 
 //  szHosts:  char szHosts[ipCount][ipLen], get the domain's ip
 // Return:
 //  actually returned ip count
-int kkp2p_get_domainip(kkp2p_engine_t* engine, char* szHosts, int ipLen, int ipCount);
+KKP2P_API int kkp2p_get_domainip(kkp2p_engine_t* engine, char* szHosts, int ipLen, int ipCount);
 
 // return value: 0 is success, <0 is error
-int kkp2p_join_net(kkp2p_engine_t* engine, char* peerId, char* secret);
+KKP2P_API int kkp2p_join_net(kkp2p_engine_t* engine, char* peerId, char* secret);
 
 // return value: 0 is success, <0 is error
-int kkp2p_join_lan(kkp2p_engine_t* engine, char* peerId);
+KKP2P_API int kkp2p_join_lan(kkp2p_engine_t* engine, char* peerId);
 
-int kkp2p_listen_fd(kkp2p_engine_t* engine);
+KKP2P_API int kkp2p_listen_fd(kkp2p_engine_t* engine);
 
 // return value: >0 is success, 0 is timeout, <0 is error
-int kkp2p_accept(kkp2p_engine_t* engine, int timeout, kkp2p_channel_t* channel);
+KKP2P_API int kkp2p_accept(kkp2p_engine_t* engine, int timeout, kkp2p_channel_t* channel);
 
 // when ctx->func is not null, it's asynchronous connect and channel can be NULL
 // when ctx->func is null, it's synchronous  connect and channel can't be NULL
 // return value: <0 is error, >=0 is success
-int kkp2p_connect(kkp2p_engine_t* engine, kkp2p_connect_ctx_t* ctx, kkp2p_channel_t* channel);
-int kkp2p_lan_search(kkp2p_engine_t* engine, kkp2p_connect_ctx_t* ctx, kkp2p_channel_t* channel);
+KKP2P_API int kkp2p_connect(kkp2p_engine_t* engine, kkp2p_connect_ctx_t* ctx, kkp2p_channel_t* channel);
+KKP2P_API int kkp2p_lan_search(kkp2p_engine_t* engine, kkp2p_connect_ctx_t* ctx, kkp2p_channel_t* channel);
 
 // start a proxy to communicate with peer
 // The data sent to the IP and port will be forwarded to ctx.peer_id
 // ctx.func and ctx.func_param must be NULL
 // return value:<0 is error, >=0 is success, proxyId is an output parameter
-int kkp2p_start_proxy(kkp2p_engine_t* engine, char* ip, uint16_t port, kkp2p_connect_ctx_t* ctx, uint32_t* proxyId);
-void kkp2p_stop_proxy(kkp2p_engine_t* engine, uint32_t proxyId);
+KKP2P_API int kkp2p_start_proxy(kkp2p_engine_t* engine, char* ip, uint16_t port, kkp2p_connect_ctx_t* ctx, uint32_t* proxyId);
+KKP2P_API void kkp2p_stop_proxy(kkp2p_engine_t* engine, uint32_t proxyId);
 
 // return value: <0 is error, 0 is timeout, >0 is success read byte count
-int kkp2p_read(int fd, char* buff, int len, int timeout);
+KKP2P_API int kkp2p_read(int fd, char* buff, int len, int timeout);
 
 // return value: <0 is error, 0 is timeout, >0 is success write byte count
-int kkp2p_write(int fd, char* buff,int len, int timeout);
+KKP2P_API int kkp2p_write(int fd, char* buff,int len, int timeout);
 
-void kkp2p_close_channel(kkp2p_engine_t* engine, uint32_t channel);
+KKP2P_API void kkp2p_close_channel(kkp2p_engine_t* engine, uint32_t channel);
 
-void kkp2p_close_fd(int fd);
+KKP2P_API void kkp2p_close_fd(int fd);
 
 #ifdef __cplusplus
 }

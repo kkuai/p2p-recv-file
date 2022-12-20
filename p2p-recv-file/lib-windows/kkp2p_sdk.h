@@ -81,6 +81,14 @@ typedef struct kkp2p_channel_s {
 	extern "C" {
 #endif
 
+// get sdk version
+// Parameter: 
+//   version: version buffer
+// Return:
+//   sdk version
+
+KKP2P_API void kkp2p_sdk_version(char* version, int buffLen);
+
 // Parameter: 
 //   timeout: second when login_domain is domain needed to be analysised
 // Return:

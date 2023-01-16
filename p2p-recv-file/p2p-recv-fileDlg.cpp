@@ -327,7 +327,7 @@ void Cp2precvfileDlg::BeginWork()
 	}
 
 	// error level
-	kkp2p_switch_log_level(kkp2p_engine, 1);
+	kkp2p_switch_log_level(kkp2p_engine, 4);
 	kkp2p_join_net(kkp2p_engine, m_strPeerId.GetBuffer(0), m_strPeerKey.GetBuffer(0));
 	kkp2p_join_lan(kkp2p_engine, m_strPeerId.GetBuffer(0));
 

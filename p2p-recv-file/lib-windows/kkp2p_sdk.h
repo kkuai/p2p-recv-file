@@ -30,10 +30,24 @@
 #define KKP2P_ERROR_INVALID_PEER_KEY       -111
 #define KKP2P_ERROR_LANMODE_MUSTUSE_P2P    -112
 #define KKP2P_ERROR_BIND_IP                -113
+#define KKP2P_ERROR_SOCKET_REUSE_ADDR      -114
+#define KKP2P_ERROR_SOCKET_BIND            -115
+
+
+#define KKP2P_TCP_CHANNEL 0
+#define KKP2P_UDP_CHANNEL 1
+#define KKP2P_WEBRTC_CHANNEL 2
 
 typedef struct kkp2p_engine_s kkp2p_engine_t;
 typedef struct kkp2p_channel_s kkp2p_channel_t;
-typedef void(*kkp2p_connect_cb)(int result, kkp2p_channel_t* channel, void* param);
+typedef void (*kkp2p_connect_cb)(int result, const kkp2p_channel_t* channel, void* param);
+
+// for webrtc
+// >= 0,success, <0 error
+// Generate local SDP, Implemented by the application
+typedef int (*kkp2p_create_offer_sdp_cb)(const char* peerId ,const void* remoteSdp
+                                         ,const char* webApi, const char* webParam
+                                         ,void* localSdp);
 
 typedef struct kkp2p_engine_conf_s {
     // NULL means only LAN search mode
@@ -60,6 +74,7 @@ typedef struct kkp2p_engine_conf_s {
 
 typedef struct kkp2p_connect_ctx_s {
     char peer_id[33];    // peer_id with a maximum length of 32 and ended with '\0'
+    int channel_type;    // 0:tcp channel, 1:udp channel
     int connect_mode;    // 0:auto; 1:only p2p; 2:only relay
     int encrypt_data;    // encrypt data or not. 0:not encrypt data; 1:encrypt
     int timeout;         // milliseconds, timeout for channel creation
@@ -70,6 +85,7 @@ typedef struct kkp2p_connect_ctx_s {
 
 typedef struct kkp2p_channel_s {
     char peer_id[33];         // peer_id with a maximum length of 32 and ended with '\0'
+    int channel_type;         // 0:tcp channel, 1:udp channel, 2:webrtc channel
     int  transmit_mode;       // 1:p2p; 2:relay
     int  encrypt_data;        // encrypt data or not. 0:not encrypt data; 1:encrypt
     uint32_t channel_id;      // the channel id
@@ -120,14 +136,16 @@ KKP2P_API int kkp2p_listen_fd(kkp2p_engine_t* engine);
 KKP2P_API int kkp2p_accept(kkp2p_engine_t* engine, int timeout, kkp2p_channel_t* channel);
 
 // when ctx->func is not null, it's asynchronous connect and channel can be NULL
-// when ctx->func is null, it's synchronous  connect and channel can't be NULL
+// when ctx->func is null, it's synchronous connect and channel can't be NULL
+// ctx->channel_type 0:create tcp channel,1:create udp channel
 // return value: <0 is error, >=0 is success
 KKP2P_API int kkp2p_connect(kkp2p_engine_t* engine, kkp2p_connect_ctx_t* ctx, kkp2p_channel_t* channel);
 KKP2P_API int kkp2p_lan_search(kkp2p_engine_t* engine, kkp2p_connect_ctx_t* ctx, kkp2p_channel_t* channel);
 
 // start a proxy to communicate with peer
 // The data sent to the IP and port will be forwarded to ctx.peer_id
-// ctx.func and ctx.func_param must be NULL
+// ctx->timeout must > 0
+// ctx->func and ctx.func_param must be NULL
 // return value:<0 is error, >=0 is success, proxyId is an output parameter
 KKP2P_API int kkp2p_start_proxy(kkp2p_engine_t* engine, char* ip, uint16_t port, kkp2p_connect_ctx_t* ctx, uint32_t* proxyId);
 KKP2P_API void kkp2p_stop_proxy(kkp2p_engine_t* engine, uint32_t proxyId);
@@ -141,6 +159,21 @@ KKP2P_API int kkp2p_write(int fd, char* buff,int len, int timeout);
 KKP2P_API void kkp2p_close_channel(kkp2p_engine_t* engine, uint32_t channel);
 
 KKP2P_API void kkp2p_close_fd(int fd);
+
+
+//---------------------------------for webrtc-----------------------------------------
+// The setting order of sdp is:
+// 1, app preset the initial sdp information
+// 2, kkp2p engine set candidate and session info
+// 3, app final set the sdp
+KKP2P_API void kkp2p_webrtc_preset_offer_sdp(kkp2p_engine_t* engine,  kkp2p_create_offer_sdp_cb cb);
+KKP2P_API void kkp2p_webrtc_finalset_offer_sdp(kkp2p_engine_t* engine,  kkp2p_create_offer_sdp_cb cb);
+
+// set tls certificate sha256 fingerprint
+// such as 02:3E:53:90:19:94:A5:71:0A:BD:87:0D:46:E0:82:F4:4A:27:5A:D7:F3:0C:7C:02:AB:9C:30:3C:59:DE:D3:B9
+KKP2P_API void kkp2p_webrtc_set_cert_fingerprint(kkp2p_engine_t* engine, char* finger, int fingerLen);
+
+
 
 #ifdef __cplusplus
 }

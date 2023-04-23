@@ -89,6 +89,7 @@ typedef struct kkp2p_channel_s {
     int  transmit_mode;       // 1:p2p; 2:relay
     int  encrypt_data;        // encrypt data or not. 0:not encrypt data; 1:encrypt
     uint32_t channel_id;      // the channel id
+    int is_ipv6_p2p;          // 0:ipv4 p2p; 1:ipv6 p2p
     int connect_desc;         // user defined parameters
     int fd;                   // the channel's fd for app read and write data 
 } kkp2p_channel_t;
@@ -170,7 +171,7 @@ KKP2P_API void kkp2p_webrtc_preset_offer_sdp(kkp2p_engine_t* engine,  kkp2p_crea
 KKP2P_API void kkp2p_webrtc_finalset_offer_sdp(kkp2p_engine_t* engine,  kkp2p_create_offer_sdp_cb cb);
 
 // set tls certificate sha256 fingerprint
-// such as 02:3E:53:90:19:94:A5:71:0A:BD:87:0D:46:E0:82:F4:4A:27:5A:D7:F3:0C:7C:02:AB:9C:30:3C:59:DE:D3:B9
+// such as 02:3E:53:90:19:94:A5:71:0A,,,
 KKP2P_API void kkp2p_webrtc_set_cert_fingerprint(kkp2p_engine_t* engine, char* finger, int fingerLen);
 
 

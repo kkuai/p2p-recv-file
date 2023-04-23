@@ -349,7 +349,12 @@ void Cp2precvfileDlg::BeginWork()
 
 	// show connect type
 	if (channel.transmit_mode == 1) {
-		m_connectType.SetWindowText(_T("p2p"));
+		if (channel.is_ipv6_p2p) {
+			m_connectType.SetWindowText(_T("p2p(ipv6)"));
+		}
+		else {
+			m_connectType.SetWindowText(_T("p2p(ipv4)"));
+		}
 	}
 	else if (channel.transmit_mode == 2) {
 		m_connectType.SetWindowText(_T("relay"));

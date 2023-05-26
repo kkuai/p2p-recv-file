@@ -32,7 +32,7 @@
 #define KKP2P_ERROR_BIND_IP                -113
 #define KKP2P_ERROR_SOCKET_REUSE_ADDR      -114
 #define KKP2P_ERROR_SOCKET_BIND            -115
-
+#define KKP2P_ERROR_INVALID_DOMAIN         -116
 
 #define KKP2P_TCP_CHANNEL 0
 #define KKP2P_UDP_CHANNEL 1
@@ -51,12 +51,10 @@ typedef int (*kkp2p_create_offer_sdp_cb)(const char* peerId ,const void* remoteS
 
 typedef struct kkp2p_engine_conf_s {
     // NULL means only LAN search mode
-    // maybe domain, such as login.p2p.com
-    // maybe ip, such as 125.70.218.16
-    // maybe iplist, such as 125.70.218.16|125.70.218.17|125.70.218.18
-	char* login_domain;
-    
-	uint16_t login_port;
+    // login domain, such as login.p2p.com
+    char* login_domain;
+
+    uint16_t login_port;
 
     // 0 means not use LAN serach mode
     // used to connect or listen

@@ -41,14 +41,6 @@
 typedef struct kkp2p_engine_s kkp2p_engine_t;
 typedef struct kkp2p_channel_s kkp2p_channel_t;
 typedef void (*kkp2p_connect_cb)(int result, const kkp2p_channel_t* channel, void* param);
-
-// for webrtc
-// >= 0,success, <0 error
-// Generate local SDP, Implemented by the application
-typedef int (*kkp2p_create_offer_sdp_cb)(const char* peerId ,const void* remoteSdp
-                                         ,const char* webApi, const char* webParam
-                                         ,void* localSdp);
-
 typedef struct kkp2p_engine_conf_s {
     // NULL means only LAN search mode
     // login domain, such as login.p2p.com
@@ -105,7 +97,7 @@ typedef struct kkp2p_channel_s {
 KKP2P_API void kkp2p_sdk_version(char* version, int buffLen);
 
 // Parameter: 
-//   timeout: second when login_domain is domain needed to be analysised
+//   timeout: millisecond when login_domain is domain needed to be analysised
 // Return:
 //   valid engine pointer when success and NULL when error
 
@@ -159,20 +151,21 @@ KKP2P_API void kkp2p_close_channel(kkp2p_engine_t* engine, uint32_t channel);
 
 KKP2P_API void kkp2p_close_fd(int fd);
 
-
 //---------------------------------for webrtc-----------------------------------------
-// The setting order of sdp is:
-// 1, app preset the initial sdp information
-// 2, kkp2p engine set candidate and session info
-// 3, app final set the sdp
-KKP2P_API void kkp2p_webrtc_preset_offer_sdp(kkp2p_engine_t* engine,  kkp2p_create_offer_sdp_cb cb);
-KKP2P_API void kkp2p_webrtc_finalset_offer_sdp(kkp2p_engine_t* engine,  kkp2p_create_offer_sdp_cb cb);
+// >= 0,success, <0 error
+// Create local SDP, Implemented by the application
+// output: localSdp
+typedef int (*kkp2p_webrtc_create_sdp)(const char* peerId, const void* remoteSdp
+                                              ,const char* webApi, const char* webParam
+                                              ,const void* hostCandiate, const void* reflexCandiate
+                                              ,const void* session, void* localSdp);
+
+// set create local sdp information callback function
+KKP2P_API void kkp2p_webrtc_set_sdp_cb(kkp2p_engine_t* engine,  kkp2p_webrtc_create_sdp cb);
 
 // set tls certificate sha256 fingerprint
 // such as 02:3E:53:90:19:94:A5:71:0A,,,
-KKP2P_API void kkp2p_webrtc_set_cert_fingerprint(kkp2p_engine_t* engine, char* finger, int fingerLen);
-
-
+KKP2P_API void kkp2p_webrtc_set_certfile_finger(kkp2p_engine_t* engine, char* finger, int fingerLen);
 
 #ifdef __cplusplus
 }

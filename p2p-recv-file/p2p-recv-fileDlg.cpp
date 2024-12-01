@@ -1,4 +1,4 @@
-﻿
+
 // p2p-recv-fileDlg.cpp: 实现文件
 //
 
@@ -175,8 +175,8 @@ BOOL Cp2precvfileDlg::OnInitDialog()
 
 	//ShowWindow(SW_MAXIMIZE);
 	//ShowWindow(SW_MINIMIZE);
-	m_loginDomain.SetWindowText(_T("124.71.217.198"));
-	m_loginPort.SetWindowText(_T("3080"));
+	m_loginDomain.SetWindowText(_T("112.74.167.65"));
+	m_loginPort.SetWindowText(_T("4080"));
 	m_lanPort.SetWindowText(_T("3549"));
 	m_peerId.SetWindowText(_T("kkuai-ipc-00001"));
 	m_peerKey.SetWindowText(_T("WtXmjG"));
@@ -317,8 +317,6 @@ void Cp2precvfileDlg::BeginWork()
 	m_engineConf.login_domain = m_strDomain.GetBuffer(0);
 	m_engineConf.login_port = m_usLoginPort;
 	m_engineConf.lan_search_port = m_usLanPort;
-	m_engineConf.log_path = NULL;
-	m_engineConf.max_log_size = 1024 * 1024;
 
 	kkp2p_engine_t* kkp2p_engine = kkp2p_engine_init(&m_engineConf, 10000);
 	if (kkp2p_engine == NULL) {
@@ -326,8 +324,6 @@ void Cp2precvfileDlg::BeginWork()
 		return;
 	}
 
-	// error level
-	kkp2p_switch_log_level(kkp2p_engine, 4);
 	kkp2p_join_net(kkp2p_engine, m_strPeerId.GetBuffer(0), m_strPeerKey.GetBuffer(0));
 	kkp2p_join_lan(kkp2p_engine, m_strPeerId.GetBuffer(0));
 
